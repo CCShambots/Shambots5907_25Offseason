@@ -6,7 +6,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.AutoCommand;
 
 public class AutoManager {
     private SendableChooser<AutoCommand> autoChooser;

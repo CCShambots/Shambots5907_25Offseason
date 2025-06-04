@@ -10,7 +10,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 
-import frc.robot.commands.AutoCommand;
+import frc.robot.util.AutoCommand;
 import frc.robot.subsystems.vision.DefaultPostProcessor;
 import frc.robot.subsystems.vision.DefaultPreProcessor;
 import frc.robot.subsystems.vision.Vision.PVCamera;

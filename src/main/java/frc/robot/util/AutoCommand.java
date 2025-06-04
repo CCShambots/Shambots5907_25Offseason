@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.util;
 
 import java.io.IOException;
 import java.util.List;
@@ -129,7 +129,12 @@ public class AutoCommand extends SequentialCommandGroup {
     // join multiple trajectories bc concatenate is a little wierd with empty trajectories
     private Trajectory joinTrajectories(Trajectory... trajectories) {
         List<State> joinedStates = new java.util.ArrayList<>();
+        Double timeAddition = 0.0;
         for (Trajectory trajectory : trajectories) {
+            for (State state : trajectory.getStates()) {
+                state.timeSeconds += timeAddition;
+            }
+            timeAddition += trajectory.getTotalTimeSeconds();
             joinedStates.addAll(trajectory.getStates());
         }
         Trajectory joinedTrajectory = new Trajectory(joinedStates);

@@ -363,12 +363,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 .withRotationalRate(omegaRadiansPerSecond)
                 .withDeadband(0.05)
                 .withRotationalDeadband(0.05)
+                .withRotationalRate(omegaRadiansPerSecond)
             : new SwerveRequest.RobotCentric()
                 .withVelocityX(vxMetersPerSecond)
                 .withVelocityY(vyMetersPerSecond)
                 .withRotationalRate(omegaRadiansPerSecond)
                 .withDeadband(0.05)
-                .withRotationalDeadband(0.05);
+                .withRotationalDeadband(0.05)
+                .withRotationalRate(omegaRadiansPerSecond);
         return request;
     }
 
