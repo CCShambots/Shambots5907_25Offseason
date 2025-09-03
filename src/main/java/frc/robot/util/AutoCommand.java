@@ -13,6 +13,8 @@ import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 import com.pathplanner.lib.util.FileVersionException;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,12 +25,28 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 
+/**
+ * An utility class for creating autonomous commands.
+ * <p>
+ * Can be created from PathPlanner paths or autos, and can have commands and
+ * waits added to it.
+ * Also generates a trajectory for visualization purposes.
+ * </p>
+ * 
+ * @see SequentialCommandGroup
+ */
 public class AutoCommand extends SequentialCommandGroup {
     private Trajectory trajectory;
 
-    /** Creates a new AutoCommand.
-     * <p>Extends SequentialCommandGroup to allow for sequential execution of commands.
-     * Its main purpose is to allow for trajectory display. from PathPlanner Paths</p>
+    /**
+     * Creates a new AutoCommand.
+     * <p>
+     * The AutoCommand will have no commands or trajectory by default, and must be
+     * added to using the various add methods.
+     * </p>
+     * 
+     * @param name The name of the AutoCommand
+     * @see SequentialCommandGroup
      */
     public AutoCommand(String name) {
         super();
@@ -37,8 +55,12 @@ public class AutoCommand extends SequentialCommandGroup {
         this.trajectory = new Trajectory();
     }
 
-    /** Adds a PathPlanner Path to the AutoCommand.
-     * <p>This will add a command to follow the path, and also add the trajectory to the AutoCommand's trajectory for display purposes.</p>
+    /**
+     * Adds a PathPlanner Path to the AutoCommand.
+     * <p>
+     * This will add a command to follow the path, and also add the trajectory to
+     * the AutoCommand's trajectory for display purposes.
+     * </p>
      * 
      * @param pathName The name of the path file (without extension) to add
      * @return The AutoCommand instance for chaining
@@ -51,12 +73,14 @@ public class AutoCommand extends SequentialCommandGroup {
             addCommands(followPathCommand);
             addTrajectoryFromPath(path);
         } catch (FileVersionException | IOException | ParseException e) {
-            DriverStation.reportError("Failed to load path: \"" + pathName + "\" in auto: \"" + this.getName() + "\"", e.getStackTrace());
+            DriverStation.reportError("Failed to load path: \"" + pathName + "\" in auto: \"" + this.getName() + "\"",
+                    e.getStackTrace());
         }
         return this;
     }
 
-    /** Adds a Command to be run sequentially in the Autonomous Command
+    /**
+     * Adds a Command to be run sequentially in the Autonomous Command
      * 
      * @param command The Command to add
      * @return The AutoCommand instance for chaining
@@ -66,30 +90,42 @@ public class AutoCommand extends SequentialCommandGroup {
         return this;
     }
 
-    /** Adds a WaitCommand to the AutoCommand.
-     * <p>This will add a command that waits for the specified number of seconds.</p>
+    /**
+     * Adds a WaitCommand to the AutoCommand.
+     * <p>
+     * This will add a command that waits for the specified number of seconds.
+     * </p>
      * 
      * @param seconds The number of seconds to wait
      * @return The AutoCommand instance for chaining
      */
     public AutoCommand addWait(double seconds) {
-        addCommands(new WaitCommand(seconds)); 
+        addCommands(new WaitCommand(seconds));
         return this;
     }
 
-    /** Adds a trajectory to the AutoCommand's trajectory.
-     * <p>Does not execute a command to follow the trajectory, do this through {@link #addCommand} instead.</p>
+    /**
+     * Adds a trajectory to the AutoCommand's visualization trajectory.
+     * <p>
+     * Does not execute a command to follow the trajectory, do this through
+     * {@link #addCommand} instead.
+     * </p>
      * 
      * @param trajectory The trajectory to add
      * @return The AutoCommand instance for chaining
      */
     public AutoCommand addTrajectory(Trajectory trajectory) {
-        this.trajectory = joinTrajectories(this.trajectory, trajectory);    // don't use concatenate bc its wierd with empty trajectories
+        this.trajectory = joinTrajectories(this.trajectory, trajectory); // don't use concatenate bc its wierd with
+                                                                         // empty trajectories
         return this;
     }
 
-    /** Gets the trajectory of the AutoCommand.
-     * <p>This is used for visualization purposes, and should not be used to follow the trajectory in a command.</p>
+    /**
+     * Gets the trajectory of the AutoCommand.
+     * <p>
+     * This is used for visualization purposes, and should not be used to follow the
+     * trajectory in a command.
+     * </p>
      * 
      * @return The trajectory of the AutoCommand
      */
@@ -103,14 +139,16 @@ public class AutoCommand extends SequentialCommandGroup {
         if (trajectory.isPresent()) {
             PathPlannerTrajectory traj = trajectory.get();
             Trajectory wpilibTrajectory = convertTrajectory(traj);
-            this.trajectory = joinTrajectories(this.trajectory, wpilibTrajectory);  // don't use concatenate bc its wierd with empty trajectories
-        }
-        else {
-            DriverStation.reportError("PathPlanner Path \"" + path.name + "\" does not have an ideal trajectory.", new Throwable().getStackTrace());
+            this.trajectory = joinTrajectories(this.trajectory, wpilibTrajectory); // don't use concatenate bc its wierd
+                                                                                   // with empty trajectories
+        } else {
+            DriverStation.reportError("PathPlanner Path \"" + path.name + "\" does not have an ideal trajectory.",
+                    new Throwable().getStackTrace());
         }
     }
 
-    // Converts a PathPlannerTrajectory to a WPILib Trajectory for visualization purposes.
+    // Converts a PathPlannerTrajectory to a WPILib Trajectory for visualization
+    // purposes.
     // Note: Do NOT use this for following the trajectory in a command.
     private Trajectory convertTrajectory(PathPlannerTrajectory pathPlannerTrajectory) {
         List<PathPlannerTrajectoryState> PathPlannerStates = pathPlannerTrajectory.getStates();
@@ -126,7 +164,8 @@ public class AutoCommand extends SequentialCommandGroup {
         return trajectory;
     }
 
-    // join multiple trajectories bc concatenate is a little wierd with empty trajectories
+    // join multiple trajectories bc concatenate is a little wierd with empty
+    // trajectories
     private Trajectory joinTrajectories(Trajectory... trajectories) {
         List<State> joinedStates = new java.util.ArrayList<>();
         Double timeAddition = 0.0;
@@ -141,10 +180,14 @@ public class AutoCommand extends SequentialCommandGroup {
         return joinedTrajectory;
     }
 
-    /** Creates an AutoCommand from a PathPlanner Auto.
-     * <p>The AutoCommand simply runs the given auto, but generates a Trajectory for display purposes.</p>
+    /**
+     * Creates an AutoCommand from a PathPlanner Auto.
+     * <p>
+     * The AutoCommand simply runs the given auto, but generates a Trajectory for
+     * display purposes.
+     * </p>
      * 
-     * @param auto The name of the PathPlanner Auto
+     * @param autoName The name of the PathPlanner Auto
      * @return The created AutoCommand
      */
     public static AutoCommand fromPathPlannerAuto(String autoName) {
@@ -162,5 +205,43 @@ public class AutoCommand extends SequentialCommandGroup {
             DriverStation.reportError("Failed to load paths for auto: " + auto.getName(), e.getStackTrace());
         }
         return autoCommand;
+    }
+
+    public static Trajectory flipTrajectory(Trajectory traj) {
+        Double fieldWidthMeters = 805.0 / 100.0; // 805 cm wide field
+        Double fieldLengthMeters = 1755.0 / 100.0; // 1755 cm long field
+
+        // Create a list to hold the flipped states
+        List<State> flippedStates = new java.util.ArrayList<>();
+
+        // Iterate through each state in the trajectory
+        for (State state : traj.getStates()) {
+            // Get the current position
+            Translation2d currentTranslation = state.poseMeters.getTranslation();
+
+            // Flip the position to the other side of the field
+            double flippedX = fieldLengthMeters - currentTranslation.getX();
+            double flippedY = fieldWidthMeters - currentTranslation.getY();
+            Translation2d flippedTranslation = new Translation2d(flippedX, flippedY);
+
+            // Create a new pose with the flipped translation and rotated heading
+            Rotation2d flippedRotation = state.poseMeters.getRotation().rotateBy(Rotation2d.fromDegrees(180));
+            var flippedPose = new edu.wpi.first.math.geometry.Pose2d(flippedTranslation, flippedRotation);
+
+            // Create a new state with the flipped pose
+            State flippedState = new State(
+            state.timeSeconds,
+            state.velocityMetersPerSecond,
+            state.accelerationMetersPerSecondSq,
+            flippedPose,
+            state.curvatureRadPerMeter
+            );
+
+            // Add the flipped state to the list
+            flippedStates.add(flippedState);
+        }
+
+        // Return a new trajectory with the flipped states
+        return new Trajectory(flippedStates);
     }
 }

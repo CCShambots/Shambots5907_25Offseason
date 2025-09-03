@@ -37,19 +37,19 @@ public class Robot extends LoggedRobot {
             return true;
           }
         })
-    .and(() -> DriverStation.isFMSAttached() || DriverStation.isDSAttached())
-    .onTrue(
-        new WaitCommand(2)
-            .andThen(
-                new WhileDisabledInstantCommand(
-                    () -> {
-                      AllianceManager.applyAlliance(DriverStation.getAlliance());
-                    })));
+        .and(() -> DriverStation.isFMSAttached() || DriverStation.isDSAttached())
+        .onTrue(
+            new WaitCommand(2)
+                .andThen(
+                    new WhileDisabledInstantCommand(
+                        () -> {
+                          AllianceManager.applyAlliance(DriverStation.getAlliance());
+                        })));
   }
 
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run(); 
+    CommandScheduler.getInstance().run();
   }
 
   @Override
@@ -58,10 +58,12 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+  }
 
   @Override
   public void autonomousInit() {
@@ -69,10 +71,12 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+  }
 
   @Override
   public void teleopInit() {
@@ -80,10 +84,12 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  }
 
   @Override
-  public void teleopExit() {}
+  public void teleopExit() {
+  }
 
   @Override
   public void testInit() {
@@ -93,11 +99,14 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   @Override
-  public void testExit() {}
+  public void testExit() {
+  }
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+  }
 }
