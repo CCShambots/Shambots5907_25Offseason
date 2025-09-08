@@ -9,19 +9,25 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.SMF.StateMachine;
+import frc.robot.controllers.ControllerBindings;
+import frc.robot.controllers.JonahControllerBindings;
 import frc.robot.util.AllianceManager;
 import frc.robot.util.AutoCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.StatefulDrivetrain;
+import frc.robot.subsystems.elevatorMech.ElevatorMech;
+import frc.robot.subsystems.elevatorMech.IOs.AlgaeMechIOReal;
+import frc.robot.subsystems.elevatorMech.IOs.CoralMechIOReal;
+import frc.robot.subsystems.elevatorMech.IOs.ElevatorIOReal;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AutoManager;
 import frc.robot.util.Elastic;
@@ -33,9 +39,11 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 	private final Vision vision;
 	private final AutoManager autoManager;
 
-	private Joystick joystick = new Joystick(0);
+	private final ElevatorMech elevatorMech;
 
 	private final Field2d preMatchField = new Field2d();
+
+	private final ControllerBindings bindings = new JonahControllerBindings();
 
 	public RobotContainer() {
 		super("RobotContainer", State.PRE_MATCH, State.class);
@@ -52,9 +60,16 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 				tunerDrivetrain,
 				TunerConstants.kSpeedAt12Volts.abs(MetersPerSecond),
 				Constants.Drivetrain.MAX_ANGULAR_RATE,
-				() -> joystick.getRawAxis(0), // Strafe
-				() -> joystick.getRawAxis(1), // Forward
-				() -> joystick.getRawAxis(2) // Rotation
+				bindings::xAxis,
+				bindings::yAxis,
+				bindings::turnAxis
+		);
+
+		elevatorMech = new ElevatorMech(
+				new ElevatorIOReal(),
+				new CoralMechIOReal(),
+				new AlgaeMechIOReal(),
+				bindings
 		);
 
 		SmartDashboard.putData("Pre-Match Field", preMatchField);
@@ -68,6 +83,13 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 	}
 
 	private void configureBindings() {
+		new Trigger(bindings::syncHeading).onTrue(new InstantCommand(drivetrain::syncHeading));
+		new Trigger(bindings::zeroHeading).onTrue(new InstantCommand(drivetrain::resetHeading));
+		new Trigger(bindings::l1).onTrue(elevatorMech.transitionCommand(ElevatorMech.State.L1));
+		new Trigger(bindings::l2).onTrue(elevatorMech.transitionCommand(ElevatorMech.State.L2));
+		new Trigger(bindings::l3).onTrue(elevatorMech.transitionCommand(ElevatorMech.State.L3));
+		new Trigger(bindings::intake).onTrue(elevatorMech.transitionCommand(ElevatorMech.State.INTAKE));
+
 	}
 
 	public Command getAutonomousCommand() {
