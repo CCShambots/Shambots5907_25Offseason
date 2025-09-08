@@ -207,10 +207,13 @@ public class AutoCommand extends SequentialCommandGroup {
         return autoCommand;
     }
 
+    /**
+     * Flips a trajectory to the opposite side of the field.
+     * 
+     * @param traj The trajectory to flip
+     * @return The flipped trajectory
+     */
     public static Trajectory flipTrajectory(Trajectory traj) {
-        Double fieldWidthMeters = 805.0 / 100.0; // 805 cm wide field
-        Double fieldLengthMeters = 1755.0 / 100.0; // 1755 cm long field
-
         // Create a list to hold the flipped states
         List<State> flippedStates = new java.util.ArrayList<>();
 
@@ -220,8 +223,8 @@ public class AutoCommand extends SequentialCommandGroup {
             Translation2d currentTranslation = state.poseMeters.getTranslation();
 
             // Flip the position to the other side of the field
-            double flippedX = fieldLengthMeters - currentTranslation.getX();
-            double flippedY = fieldWidthMeters - currentTranslation.getY();
+            double flippedX = Constants.Field.fieldLengthMeters - currentTranslation.getX();
+            double flippedY = Constants.Field.fieldWidthMeters - currentTranslation.getY();
             Translation2d flippedTranslation = new Translation2d(flippedX, flippedY);
 
             // Create a new pose with the flipped translation and rotated heading

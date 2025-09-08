@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,6 +24,7 @@ import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.StatefulDrivetrain;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AutoManager;
+import frc.robot.util.Elastic;
 
 public class RobotContainer extends StateMachine<RobotContainer.State> {
 
@@ -38,10 +40,11 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 	public RobotContainer() {
 		super("RobotContainer", State.PRE_MATCH, State.class);
 		tunerDrivetrain = TunerConstants.createDrivetrain();
+		autoManager = new AutoManager(Constants.Autonomous.AUTO_PATHS);
+
 		vision = new Vision(
 				Constants.Vision.CAMERAS,
 				Constants.Vision.FIELD_LAYOUT);
-		autoManager = new AutoManager(Constants.Autonomous.AUTO_PATHS);
 
 		vision.addListener(tunerDrivetrain::addVisionMeasurements);
 
@@ -94,9 +97,10 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 
 	@Override
 	protected void update() {
-		preMatchField.setRobotPose(tunerDrivetrain.getPose());
 		vision.updateListeners();
-		if (getState() == State.PRE_MATCH) {
+		displayDashboardObjects();
+		preMatchField.setRobotPose(drivetrain.getPose());
+		if(getState()==State.PRE_MATCH) {
 			handlePreMatchProcesses();
 		}
 	}
@@ -104,11 +108,14 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 	@Override
 	protected void onTeleopStart() {
 		requestTransition(State.TELEOP);
+		drivetrain.syncHeading();
+		Elastic.selectTab("Teleoperated");
 	}
 
 	@Override
 	protected void onAutonomousStart() {
 		requestTransition(State.AUTONOMOUS);
+		Elastic.selectTab("Autonomous");
 	}
 
 	@Override
@@ -136,11 +143,11 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 				preMatchField.getObject("StartingPose").setPose(traj.getInitialPose());
 				Double translationError = tunerDrivetrain.getPose().getTranslation()
 						.getDistance(traj.getInitialPose().getTranslation());
-				Double rotationError = Math.abs(tunerDrivetrain.getPose().getRotation().getMeasure().magnitude()
-						- traj.getInitialPose().getRotation().getMeasure().magnitude());
-				if (translationError < 0.05 && rotationError < 1.0) {
+				Double rotationError = Math.abs(tunerDrivetrain.getPose().getRotation().getDegrees()
+						- traj.getInitialPose().getRotation().getDegrees());
+				if (translationError < 0.05 && rotationError < 5.0) {
 					color = "#00FF00";
-				} else if (translationError < 0.2 && rotationError < 5.0) {
+				} else if (translationError < 0.2 && rotationError < 15.0) {
 					color = "#FFAA00";
 				} else {
 					color = "#FF0000";
@@ -156,10 +163,13 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 			preMatchField.getObject("StartingPose").setPose(tunerDrivetrain.getPose());
 		}
 		SmartDashboard.putString("Starting Proximity", color);
+	}
 
-		// Display FMS Connection Status
+	private void displayDashboardObjects() {
 		SmartDashboard.putBoolean("FMS Connected", DriverStation.isFMSAttached());
-
+		SmartDashboard.putString("Alliance", AllianceManager.getAlliance().toString());
+		SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+		SmartDashboard.putNumber("Battery Voltage", RobotController.getBatteryVoltage());
 	}
 
 	private Pose2d followDisplayTrajectory(Trajectory traj) {

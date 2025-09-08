@@ -16,6 +16,11 @@ import frc.robot.subsystems.vision.DefaultPreProcessor;
 import frc.robot.subsystems.vision.Vision.PVCamera;
 
 public class Constants {
+    public static class Field {
+        public static final double fieldWidthMeters = 805.0 / 100.0; // 805 cm wide field
+        public static final double fieldLengthMeters = 1755.0 / 100.0; // 1755 cm long field
+    }
+
     public static class Vision {
         public static Double AMBIGUITY_THRESHHOLD = 0.4;
 
