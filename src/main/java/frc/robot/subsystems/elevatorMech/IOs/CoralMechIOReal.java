@@ -23,6 +23,6 @@ public class CoralMechIOReal implements CoralMechIO {
 
     @Override
     public void updateInputs(CoralMechInputs inputs) {
-        inputs.proxTriggered = proxSensor.get();
+        inputs.proxTriggered = !proxSensor.get();
     }
 }

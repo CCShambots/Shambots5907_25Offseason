@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.pathplanner.lib.config.RobotConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -157,19 +158,23 @@ public class Constants {
         public static class CoralMech {
             public static final double SPEED = 0.5;
 
-            public static final int MOTOR_ID = 30;
+            public static final int MOTOR_ID = 22;
 
             public static final InvertedValue INVERT_MOTOR = InvertedValue.Clockwise_Positive;
 
             public static final TalonFXSConfiguration MOTOR_CONFIGURATION = new TalonFXSConfiguration()
                 .withCurrentLimits(DEFAULT_CURRENT_LIMITS);
 
+            static {
+                MOTOR_CONFIGURATION.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+            }
+
             public static final int PROX_SENSOR_ID = 3;
         }
 
         public static class Elevator {
-            public static final int MOTOR1_ID = 10;
-            public static final int MOTOR2_ID = 11;
+            public static final int MOTOR1_ID = 9;
+            public static final int MOTOR2_ID = 10;
 
             public static final double MAX_HEIGHT_METERS = 1.0;
             public static final double MIN_HEIGHT_METERS = 0.0;
@@ -178,14 +183,14 @@ public class Constants {
             public static final InvertedValue INVERT_MOTOR2 = InvertedValue.CounterClockwise_Positive;
 
             public static final double METERS_PER_ROTATION =
-                Units.inchesToMeters(1.87) * Math.PI / (15.0 * 3.0);
+                Units.inchesToMeters(1.87) * Math.PI / (15.0 * 1) * 2;
 
             public static final TalonFXConfiguration MOTOR_CONFIGURATION = new TalonFXConfiguration()
             .withSlot0(new Slot0Configs()
                 .withKS(0.0)
-                .withKV(0.0)
+                .withKV(0.1)
                 .withKG(0.0)
-                .withKP(0.0)
+                .withKP(0.5)
                 .withKI(0.0)
                 .withKD(0.0)
             )

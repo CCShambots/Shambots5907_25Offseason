@@ -10,12 +10,12 @@ public class JonahControllerBindings implements ControllerBindings {
 
     @Override
     public double xAxis() {
-        return -leftFlightStick.getYAxis();
+        return leftFlightStick.getXAxis();
     }
 
     @Override
     public double yAxis() {
-        return -leftFlightStick.getXAxis();
+        return -leftFlightStick.getYAxis();
     }
 
     @Override
