@@ -16,6 +16,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -28,8 +29,9 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.Constants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.vision.LimelightHelpers;
 import frc.robot.subsystems.vision.Vision.VisionEstimate;
 import frc.robot.util.Elastic;
 import frc.robot.util.Elastic.Notification;
@@ -210,6 +212,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     private void configureAutoBuilder() {
+        LimelightHelpers.setCameraPose_RobotSpace("limelight",
+            Constants.Limelight.FORWARD_OFFSET,
+            Constants.Limelight.LATERAL_OFFSET,
+            Constants.Limelight.VERTICAL_OFFSET,
+            Constants.Limelight.ROLL_OFFSET,
+            Constants.Limelight.PITCH_OFFSET,
+            Constants.Limelight.YAW_OFFSET
+        );
+        
         try {
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
@@ -298,6 +309,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        LimelightHelpers.SetRobotOrientation("limelight",
+                getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+        boolean doRejectUpdate = false;
+        if (mt2.tagCount == 0) {
+            doRejectUpdate = true;
+        }
+        if (!doRejectUpdate) {
+            setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+            addVisionMeasurement(
+                    mt2.pose,
+                    mt2.timestampSeconds);
+        }
+
     }
 
     private void startSimThread() {

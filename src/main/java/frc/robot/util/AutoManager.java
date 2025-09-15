@@ -37,7 +37,7 @@ public class AutoManager {
             addAuto(name, autoCommand);
         });
 
-        autoChooser.setDefaultOption("No Auto", null);
+        autoChooser.setDefaultOption("No Auto", new AutoCommand("empty"));
 
         SmartDashboard.putData("Autonomous Route", autoChooser);
     }

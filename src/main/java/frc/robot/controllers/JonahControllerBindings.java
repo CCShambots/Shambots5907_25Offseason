@@ -74,7 +74,27 @@ public class JonahControllerBindings implements ControllerBindings {
     }
 
     @Override
-    public boolean shift() {
+    public boolean alignLeft() {
+        return leftFlightStick.getTrigger();
+    }
+
+    @Override
+    public boolean alignRight() {
+        return rightFlightStick.getTrigger();
+    }
+
+    @Override
+    public boolean climbExtend() {
+        return gamepad.getAButton();
+    }
+
+    @Override
+    public boolean climbUp() {
         return gamepad.getRightTriggerAxis()>0.5;
+    }
+
+    @Override
+    public boolean climbDown() {
+        return gamepad.getLeftTriggerAxis()>0.5;
     }
 }

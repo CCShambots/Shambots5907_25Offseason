@@ -22,13 +22,15 @@ import frc.robot.controllers.JonahControllerBindings;
 import frc.robot.util.AllianceManager;
 import frc.robot.util.AutoCommand;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIOReal;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.StatefulDrivetrain;
 import frc.robot.subsystems.elevatorMech.ElevatorMech;
 import frc.robot.subsystems.elevatorMech.IOs.AlgaeMechIOReal;
 import frc.robot.subsystems.elevatorMech.IOs.CoralMechIOReal;
 import frc.robot.subsystems.elevatorMech.IOs.ElevatorIOReal;
-import frc.robot.subsystems.vision.Vision;
+// import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AutoManager;
 import frc.robot.util.Elastic;
 
@@ -36,7 +38,7 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 
 	private final CommandSwerveDrivetrain tunerDrivetrain;
 	private final StatefulDrivetrain drivetrain;
-	private final Vision vision;
+	// private final Vision vision;
 	private final AutoManager autoManager;
 
 	private final ElevatorMech elevatorMech;
@@ -45,16 +47,18 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 
 	private final ControllerBindings bindings = new JonahControllerBindings();
 
+	private final Climber climber;
+
 	public RobotContainer() {
 		super("RobotContainer", State.PRE_MATCH, State.class);
 		tunerDrivetrain = TunerConstants.createDrivetrain();
 		autoManager = new AutoManager(Constants.Autonomous.AUTO_PATHS);
 
-		vision = new Vision(
-				Constants.Vision.CAMERAS,
-				Constants.Vision.FIELD_LAYOUT);
+		// vision = new Vision(
+		// 		Constants.Vision.CAMERAS,
+		// 		Constants.Vision.FIELD_LAYOUT);
 
-		vision.addListener(tunerDrivetrain::addVisionMeasurements);
+		// vision.addListener(tunerDrivetrain::addVisionMeasurements);
 
 		drivetrain = new StatefulDrivetrain(
 				tunerDrivetrain,
@@ -72,6 +76,8 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 				bindings
 		);
 
+		climber = new Climber(new ClimberIOReal());
+
 		SmartDashboard.putData("Pre-Match Field", preMatchField);
 
 		registerStateCommands();
@@ -81,6 +87,7 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 
 		addChildSubsystem(drivetrain);
 		addChildSubsystem(elevatorMech);
+		addChildSubsystem(climber);
 	}
 
 	private void configureBindings() {
@@ -93,6 +100,12 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 		new Trigger(bindings::stow).onTrue(elevatorMech.transitionCommand(ElevatorMech.State.IDLE));
 		new Trigger(bindings::processor).onTrue(elevatorMech.transitionCommand(ElevatorMech.State.PROCESSOR));
 		new Trigger(bindings::confirm).onTrue(elevatorMech.transitionCommand(ElevatorMech.State.AUTO_SCORE));
+		new Trigger(bindings::alignLeft).onTrue(drivetrain.transitionCommand(StatefulDrivetrain.State.ALIGN_REEF_L)).onFalse(drivetrain.transitionCommand(StatefulDrivetrain.State.TRAVERSING));
+		new Trigger(bindings::alignRight).onTrue(drivetrain.transitionCommand(StatefulDrivetrain.State.ALIGN_REEF_R)).onFalse(drivetrain.transitionCommand(StatefulDrivetrain.State.TRAVERSING));
+
+		new Trigger(bindings::climbExtend).onTrue(climber.transitionCommand(Climber.State.EXTEND)).onFalse(climber.transitionCommand(Climber.State.IDLE));
+		new Trigger(bindings::climbUp).onTrue(climber.transitionCommand(Climber.State.CLIMBING)).onFalse(climber.transitionCommand(Climber.State.IDLE));
+		new Trigger(bindings::climbDown).onTrue(climber.transitionCommand(Climber.State.DESCENDING)).onFalse(climber.transitionCommand(Climber.State.IDLE));
 	}
 
 	public Command getAutonomousCommand() {
@@ -117,12 +130,13 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 		registerStateCommand(State.PRE_MATCH, new InstantCommand());
 		registerStateCommand(State.AUTONOMOUS, new InstantCommand(()->autoManager.getSelectedAuto().schedule()));
 		registerStateCommand(State.TELEOP, drivetrain.transitionCommand(StatefulDrivetrain.State.TRAVERSING));
-		registerStateCommand(State.TEST, new InstantCommand());
+		registerStateCommand(State.TEST, drivetrain.transitionCommand(StatefulDrivetrain.State.ALIGN_REEF_L));
 	}
 
 	@Override
 	protected void update() {
-		vision.updateListeners();
+		//vision.updateListeners();
+		
 		displayDashboardObjects();
 		preMatchField.setRobotPose(drivetrain.getPose());
 		if(getState()==State.PRE_MATCH) {

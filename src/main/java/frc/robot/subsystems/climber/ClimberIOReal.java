@@ -6,20 +6,35 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class ClimberIOReal implements ClimberIO {
-    TalonFX motor = new TalonFX(MOTOR_ID);
+    TalonFX winchMotor = new TalonFX(MOTOR1_ID);
+    TalonFX beltMotor = new TalonFX(MOTOR2_ID);
 
     public ClimberIOReal() {
-        motor.getConfigurator().apply(MOTOR_CONFIGURATION);
-        motor.getConfigurator().apply(new MotorOutputConfigs().withInverted(INVERT_MOTOR));
+        winchMotor.getConfigurator().apply(MOTOR_CONFIGURATION);
+        winchMotor.getConfigurator().apply(new MotorOutputConfigs().withInverted(INVERT_MOTOR1));
+        beltMotor.getConfigurator().apply(MOTOR_CONFIGURATION);
+        beltMotor.getConfigurator().apply(new MotorOutputConfigs().withInverted(INVERT_MOTOR2));
     }
 
     @Override
     public void set(double speed) {
-        motor.set(speed);
+        if (speed > 0) {
+            winchMotor.set(speed);
+            beltMotor.set(0);
+        } else {
+            winchMotor.set(0);
+            beltMotor.set(speed);
+        }
+    }
+
+    @Override
+    public void winchSet(double speed) {
+        winchMotor.set(speed);
     }
 
     @Override
     public void stop() {
-        motor.stopMotor();
+        winchMotor.stopMotor();
+        beltMotor.stopMotor();
     }
 }

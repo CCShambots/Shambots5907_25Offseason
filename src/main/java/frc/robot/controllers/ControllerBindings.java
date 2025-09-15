@@ -53,7 +53,23 @@ public interface ControllerBindings {
         return false;
     }
 
-    public default boolean shift() {
+    public default boolean alignLeft() {
+        return false;
+    }
+
+    public default boolean alignRight() {
+        return false;
+    }
+
+    public default boolean climbExtend() {
+        return false;
+    }
+
+    public default boolean climbUp() {
+        return false;
+    }
+
+    public default boolean climbDown() {
         return false;
     }
 }

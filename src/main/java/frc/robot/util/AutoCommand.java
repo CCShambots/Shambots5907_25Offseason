@@ -214,6 +214,11 @@ public class AutoCommand extends SequentialCommandGroup {
      * @return The flipped trajectory
      */
     public static Trajectory flipTrajectory(Trajectory traj) {
+        // Handle the case with no states
+        if (traj.getStates().isEmpty()) {
+            return new Trajectory();
+        }
+
         // Create a list to hold the flipped states
         List<State> flippedStates = new java.util.ArrayList<>();
 
