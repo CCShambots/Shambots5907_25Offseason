@@ -2,6 +2,7 @@ package frc.robot.subsystems.elevatorMech;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.SMF.StateMachine;
 import frc.robot.controllers.ControllerBindings;
@@ -26,8 +27,11 @@ public class ElevatorMech extends StateMachine<ElevatorMech.State> {
         this.coralMechIO = coralMechIO;
         this.algaeMechIO = algaeMechIO;
         this.bindings = bindings;
-        registerStateCommands();
+        
         registerStateTransitions();
+        registerStateCommands();
+
+        elevatorIO.resetEncoder();
     }
 
     private void registerStateCommands() {
@@ -38,30 +42,31 @@ public class ElevatorMech extends StateMachine<ElevatorMech.State> {
         }));
 
         registerStateCommand(State.L1, new InstantCommand(()->{
-            elevatorIO.setHeight(0.3);
+            elevatorIO.setHeight(0.2);
             coralMechIO.set(0);
             algaeMechIO.set(0);
         }));
 
         registerStateCommand(State.L2, new InstantCommand(()->{
-            elevatorIO.setHeight(0.6);
+            elevatorIO.setHeight(0.35);
             coralMechIO.set(0);
             algaeMechIO.set(0);
         }));
 
         registerStateCommand(State.L3, new InstantCommand(()->{
-            elevatorIO.setHeight(0.9);
+            elevatorIO.setHeight(0.75);
             coralMechIO.set(0);
             algaeMechIO.set(0);
         }));
 
         registerStateCommand(State.INTAKE, new SequentialCommandGroup(
             new InstantCommand(()->{
-                elevatorIO.setHeight(0.2);
-                coralMechIO.set(1);
+                elevatorIO.setHeight(0.15);
+                coralMechIO.set(0.5);
                 algaeMechIO.set(0);
             }),
             new WaitUntilCommand(()->coralMechInputs.proxTriggered),
+            new WaitCommand(0.15),
             new InstantCommand(()->{
                 coralMechIO.set(0);
             }),
@@ -109,9 +114,11 @@ public class ElevatorMech extends StateMachine<ElevatorMech.State> {
             transitionCommand(State.IDLE)
         ));
 
-        registerStateCommand(State.AUTO_SCORE, new InstantCommand(()->{
-            coralMechIO.set(1);
-        }));
+        registerStateCommand(State.AUTO_SCORE, new SequentialCommandGroup(
+            new InstantCommand(()->coralMechIO.set(1)),
+            new WaitCommand(0.2),
+            transitionCommand(State.INTAKE)
+            ));
     }
 
     private void registerStateTransitions() {
