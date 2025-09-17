@@ -77,9 +77,10 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 		registerStateCommands();
 		registerStateTransitions();
 
-		configureBindings();
-
 		addChildSubsystem(drivetrain);
+		addChildSubsystem(elevatorMech);
+
+		configureBindings();
 	}
 
 	private void configureBindings() {
@@ -89,7 +90,6 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 		new Trigger(bindings::l2).onTrue(elevatorMech.transitionCommand(ElevatorMech.State.L2));
 		new Trigger(bindings::l3).onTrue(elevatorMech.transitionCommand(ElevatorMech.State.L3));
 		new Trigger(bindings::intake).onTrue(elevatorMech.transitionCommand(ElevatorMech.State.INTAKE));
-
 	}
 
 	public Command getAutonomousCommand() {

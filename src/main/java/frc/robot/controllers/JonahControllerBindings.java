@@ -4,23 +4,23 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.HID.FlightStick;
 
 public class JonahControllerBindings implements ControllerBindings {
-    private final FlightStick leftFlightStick = new FlightStick(0);
-    private final FlightStick rightFlightStick = new FlightStick(1);
+    private final FlightStick leftFlightStick = new FlightStick(1);
+    private final FlightStick rightFlightStick = new FlightStick(0);
     private final XboxController gamepad = new XboxController(2);
 
     @Override
     public double xAxis() {
-        return -leftFlightStick.getYAxis();
+        return -rightFlightStick.getXAxis();
     }
 
     @Override
     public double yAxis() {
-        return -leftFlightStick.getXAxis();
+        return -rightFlightStick.getYAxis();
     }
 
     @Override
     public double turnAxis() {
-        return -rightFlightStick.getXAxis();
+        return -leftFlightStick.getXAxis();
     }
 
     @Override

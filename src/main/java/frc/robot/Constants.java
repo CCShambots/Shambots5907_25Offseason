@@ -157,7 +157,7 @@ public class Constants {
         public static class CoralMech {
             public static final double SPEED = 0.5;
 
-            public static final int MOTOR_ID = 30;
+            public static final int MOTOR_ID = 22;
 
             public static final InvertedValue INVERT_MOTOR = InvertedValue.Clockwise_Positive;
 
@@ -168,8 +168,8 @@ public class Constants {
         }
 
         public static class Elevator {
-            public static final int MOTOR1_ID = 10;
-            public static final int MOTOR2_ID = 11;
+            public static final int MOTOR1_ID = 9;
+            public static final int MOTOR2_ID = 10;
 
             public static final double MAX_HEIGHT_METERS = 1.0;
             public static final double MIN_HEIGHT_METERS = 0.0;
