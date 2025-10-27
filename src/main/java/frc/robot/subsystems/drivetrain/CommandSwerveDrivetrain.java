@@ -16,6 +16,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -58,6 +59,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+
+    private SwerveDrivePoseEstimator poseEstimator;
 
     /*
      * SysId routine for characterizing translation. This is used to find PID gains
@@ -140,6 +143,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         configureAutoBuilder();
+        configurePoseEstimator();
     }
 
     /**
@@ -166,6 +170,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         configureAutoBuilder();
+        configurePoseEstimator();
     }
 
     /**
@@ -207,13 +212,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         configureAutoBuilder();
+        configurePoseEstimator();
     }
 
     private void configureAutoBuilder() {
         try {
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
-                    () -> getState().Pose, // Supplier of current robot pose
+                    this::getPose, // Supplier of current robot pose
                     this::resetPose, // Consumer for seeding pose against auto
                     () -> getState().Speeds, // Supplier of current robot speeds
                     // Consumer of ChassisSpeeds and feedforwards to drive the robot
@@ -241,6 +247,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                             "PathPlanner Config Error",
                             "Failed to load PathPlanner config and configure AutoBuilder: " + ex.getMessage()));
         }
+    }
+
+    private void configurePoseEstimator() {
+        poseEstimator = new SwerveDrivePoseEstimator(getKinematics(), new Rotation2d(getPigeon2().getYaw().getValue()),
+                getState().ModulePositions, new Pose2d());
     }
 
     /**
@@ -278,17 +289,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     @Override
     public void periodic() {
-        /*
-         * Periodically try to apply the operator perspective.
-         * If we haven't applied the operator perspective before, then we should apply
-         * it regardless of DS state.
-         * This allows us to correct the perspective in case the robot code restarts
-         * mid-match.
-         * Otherwise, only check and apply the operator perspective if the DS is
-         * disabled.
-         * This ensures driving behavior doesn't change until an explicit disable event
-         * occurs during testing.
-         */
+        // Periodically try to apply the operator perspective.
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 setOperatorPerspectiveForward(
@@ -298,6 +299,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        // Update the poseEstimator module positions
+        poseEstimator.update(new Rotation2d(getPigeon2().getYaw().getValue()), getState().ModulePositions);
+    }
+
+    @Override
+    public void resetPose(Pose2d pose) {
+        super.resetPose(pose);
+        poseEstimator.resetPose(pose);
     }
 
     private void startSimThread() {
@@ -339,6 +349,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             double timestampSeconds,
             Matrix<N3, N1> visionMeasurementStdDevs) {
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds),
+                visionMeasurementStdDevs);
+        poseEstimator.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds),
                 visionMeasurementStdDevs);
     }
 
@@ -417,6 +429,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @return The current pose of the robot.
      */
     public Pose2d getPose() {
-        return getState().Pose;
+        return poseEstimator.getEstimatedPosition();
     }
 }

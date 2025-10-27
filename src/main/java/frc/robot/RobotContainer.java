@@ -25,6 +25,7 @@ import frc.robot.subsystems.drivetrain.StatefulDrivetrain;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AutoManager;
 import frc.robot.util.Elastic;
+import frc.robot.util.NTInterface;
 
 public class RobotContainer extends StateMachine<RobotContainer.State> {
 
@@ -102,6 +103,14 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 		preMatchField.setRobotPose(drivetrain.getPose());
 		if(getState()==State.PRE_MATCH) {
 			handlePreMatchProcesses();
+		}
+
+		if(NTInterface.isDashboardConnected("dashboard1")){
+			NTInterface.NTITable table = NTInterface.getDashboardTable("dashboard1");
+			if(table.valueExists("Time")){
+				double time = table.getValue("Time").getDouble();
+				System.out.println(time);
+			}
 		}
 	}
 
