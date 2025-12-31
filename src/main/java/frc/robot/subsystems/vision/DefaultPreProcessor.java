@@ -11,6 +11,8 @@ public class DefaultPreProcessor implements Preprocessor {
     double distanceScalar;
     int avgLength;
 
+    final double maxZDistance = 0.3; // meters
+
     public DefaultPreProcessor(double ambiguityThreshold, double distanceScalar, int avgLength) {
         this.ambiguityThreshold = ambiguityThreshold;
         this.distanceScalar = distanceScalar;
@@ -36,7 +38,6 @@ public class DefaultPreProcessor implements Preprocessor {
             Math.min(Timer.getFPGATimestamp(), in.getTimestampSeconds()));*/
 
         in.targets.removeIf((target) -> addAndComputeAverage(target.getFiducialId(), target.getPoseAmbiguity()) > ambiguityThreshold);
-
         return in;
     }
     

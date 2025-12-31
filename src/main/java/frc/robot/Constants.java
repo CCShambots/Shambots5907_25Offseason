@@ -9,7 +9,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
-
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.util.AutoCommand;
 import frc.robot.subsystems.vision.DefaultPostProcessor;
 import frc.robot.subsystems.vision.DefaultPreProcessor;
@@ -100,7 +100,11 @@ public class Constants {
     public static class Autonomous {
 
         public static final AutoCommand[] AUTO_PATHS = new AutoCommand[] {
-
+            new AutoCommand("EXAMPLE_COMMAND")
+                .addPath("Example1")
+                .addWait(0.5)
+                .addPath("Example2")
+                .addCommand(new PrintCommand("Auto Complete!"))
         };
 
         public static RobotConfig CONFIG;
