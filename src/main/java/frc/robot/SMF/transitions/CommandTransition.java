@@ -2,6 +2,7 @@
 package frc.robot.SMF.transitions;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class CommandTransition<E extends Enum<E>> extends TransitionBase<E> {
   private final Command command;
@@ -37,7 +38,8 @@ public class CommandTransition<E extends Enum<E>> extends TransitionBase<E> {
 
   @Override
   public void execute() {
-    command.schedule();
+    //command.schedule();
+    CommandScheduler.getInstance().schedule(command);
   }
 
   @Override
