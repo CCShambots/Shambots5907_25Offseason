@@ -29,7 +29,8 @@ public class StatefulDrivetrain extends StateMachine<StatefulDrivetrain.State> {
     private double maxAngularRate = 0.0;
     private Field2d field = new Field2d();
 
-    public StatefulDrivetrain(CommandSwerveDrivetrain drivetrain, double maxSpeed, double maxAngularRate, DoubleSupplier xSpeedSupplier,
+    public StatefulDrivetrain(CommandSwerveDrivetrain drivetrain, double maxSpeed, double maxAngularRate,
+            DoubleSupplier xSpeedSupplier,
             DoubleSupplier ySpeedSupplier, DoubleSupplier rotSupplier) {
         super("StatefulDrivetrain", State.UNDETERMINED, State.class);
         this.drivetrain = drivetrain;
@@ -48,19 +49,22 @@ public class StatefulDrivetrain extends StateMachine<StatefulDrivetrain.State> {
                 SwerveDriveState state = drivetrain.getState();
                 builder.setSmartDashboardType("SwerveDrive");
 
-                builder.addDoubleProperty("Front Left Angle", ()->state.ModulePositions[0].angle.getRadians(), null);
-                builder.addDoubleProperty("Front Left Velocity", ()->state.ModuleStates[0].speedMetersPerSecond, null);
+                builder.addDoubleProperty("Front Left Angle", () -> state.ModulePositions[0].angle.getRadians(), null);
+                builder.addDoubleProperty("Front Left Velocity", () -> state.ModuleStates[0].speedMetersPerSecond,
+                        null);
 
-                builder.addDoubleProperty("Front Right Angle", ()->state.ModulePositions[1].angle.getRadians(), null);
-                builder.addDoubleProperty("Front Right Velocity", ()->state.ModuleStates[1].speedMetersPerSecond, null);
+                builder.addDoubleProperty("Front Right Angle", () -> state.ModulePositions[1].angle.getRadians(), null);
+                builder.addDoubleProperty("Front Right Velocity", () -> state.ModuleStates[1].speedMetersPerSecond,
+                        null);
 
-                builder.addDoubleProperty("Back Left Angle", ()->state.ModulePositions[2].angle.getRadians(), null);
-                builder.addDoubleProperty("Back Left Velocity", ()->state.ModuleStates[2].speedMetersPerSecond, null);
+                builder.addDoubleProperty("Back Left Angle", () -> state.ModulePositions[2].angle.getRadians(), null);
+                builder.addDoubleProperty("Back Left Velocity", () -> state.ModuleStates[2].speedMetersPerSecond, null);
 
-                builder.addDoubleProperty("Back Right Angle", ()->state.ModulePositions[3].angle.getRadians(), null);
-                builder.addDoubleProperty("Back Right Velocity", ()->state.ModuleStates[3].speedMetersPerSecond, null);
+                builder.addDoubleProperty("Back Right Angle", () -> state.ModulePositions[3].angle.getRadians(), null);
+                builder.addDoubleProperty("Back Right Velocity", () -> state.ModuleStates[3].speedMetersPerSecond,
+                        null);
 
-                builder.addDoubleProperty("Robot Angle", ()->state.Pose.getRotation().getRadians(), null);
+                builder.addDoubleProperty("Robot Angle", () -> state.Pose.getRotation().getRadians(), null);
             }
         });
     }
@@ -70,7 +74,7 @@ public class StatefulDrivetrain extends StateMachine<StatefulDrivetrain.State> {
     }
 
     public void syncHeading() {
-        double allianceHeading = AllianceManager.getAlliance()==Alliance.Red ? 180.0 : 0.0;
+        double allianceHeading = AllianceManager.getAlliance() == Alliance.Red ? 180.0 : 0.0;
         Rotation2d newHeading = Rotation2d.fromDegrees(allianceHeading);
         drivetrain.setOperatorPerspectiveForward(newHeading);
     }
@@ -85,9 +89,7 @@ public class StatefulDrivetrain extends StateMachine<StatefulDrivetrain.State> {
     }
 
     private void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        drivetrain.applyRequest(
-            ()->drivetrain.generateRequest(xSpeed*maxSpeed, ySpeed*maxSpeed, rot*maxAngularRate, fieldRelative)
-        ).schedule();
+        drivetrain.applyRequest(drivetrain.generateRequest(xSpeed*maxSpeed, ySpeed*maxSpeed, rot*maxAngularRate, fieldRelative));
     }
 
     @Override
@@ -103,14 +105,14 @@ public class StatefulDrivetrain extends StateMachine<StatefulDrivetrain.State> {
     }
 
     private void registerStateCommands() {
-        registerStateCommand(State.IDLE, new RunCommand(()->{
-            drivetrain.applyRequest(()->drivetrain.generateRequest(0, 0, 0, false));
+        registerStateCommand(State.IDLE, new RunCommand(() -> {
+            drivetrain.applyRequest(drivetrain.generateRequest(0, 0, 0, false));
         }));
-        registerStateCommand(State.TRAVERSING, new RunCommand(()->{
+        registerStateCommand(State.TRAVERSING, new RunCommand(() -> {
             drive(xSpeedSupplier.getAsDouble(), ySpeedSupplier.getAsDouble(), rotSupplier.getAsDouble(), true);
         }));
-        registerStateCommand(State.X_SHAPE, new RunCommand(()->{
-            drivetrain.applyRequest(()->new SwerveRequest.SwerveDriveBrake());
+        registerStateCommand(State.X_SHAPE, new RunCommand(() -> {
+            drivetrain.applyRequest(new SwerveRequest.SwerveDriveBrake());
         }));
     }
 
