@@ -8,6 +8,9 @@ import java.util.function.Consumer;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
@@ -16,6 +19,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.Elastic;
@@ -23,6 +27,8 @@ import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 
 public class Vision {
+    private VisionSystemSim visionSim;
+
     private final AprilTagCamera[] pvCams;
     private Field2d field = new Field2d();
 
@@ -57,9 +63,47 @@ public class Vision {
         pvCams = camSettings.stream()
                 .map(
                         (settings) -> {
-                            return new AprilTagCamera(settings);
+                            return new AprilTagCamera(settings, this.fieldLayout);
                         })
                 .toArray(AprilTagCamera[]::new);
+
+        if (RobotBase.isSimulation()) {
+			visionSim = new VisionSystemSim("main");
+			visionSim.addAprilTags(fieldLayout);
+
+            camSettings.stream()
+                .forEach((settings) -> {
+                    SimCameraProperties camProps = new SimCameraProperties();
+                    camProps.setCalibration(1280, 800, edu.wpi.first.math.geometry.Rotation2d.fromDegrees(75));
+                    camProps.setFPS(50);
+                    camProps.setAvgLatencyMs(20);
+                    PhotonCamera realCam = Arrays.stream(pvCams)
+                        .filter((cam) -> cam.cam.name.equals(settings.name))
+                        .findFirst()
+                        .orElse(null)
+                        .camera;
+                    PhotonCameraSim simCamera = new PhotonCameraSim(realCam, camProps);
+                    Transform3d robotToCamera = new Transform3d(
+                        settings.pose.getTranslation(),
+                        settings.pose.getRotation());
+                    visionSim.addCamera(simCamera, robotToCamera);
+                });
+		}
+    }
+
+    /**
+     * Updates the simulated vision system with the robot's current pose.
+     * <p>
+     * This method should be called periodically in simulation to update the vision
+     * system's understanding of the robot's position on the field.
+     * </p>
+     * 
+     * @param robotPose The current pose of the robot.
+     */
+    public void updateSimPose(Pose2d robotPose) {
+        if (RobotBase.isSimulation()) {
+            visionSim.update(robotPose);
+        }
     }
 
     /**
@@ -185,21 +229,6 @@ public class Vision {
         Pose2d lastPose = new Pose2d();
 
         Boolean lastStatus = false;
-
-        /**
-         * Creates an AprilTagCamera instance for the Vision subsystem.
-         * 
-         * @param cam The camera settings to use for pose estimation.
-         */
-        public AprilTagCamera(PVCamera cam) {
-            this.cam = cam;
-            PhotonCamera camera = new PhotonCamera(cam.name);
-            this.camera = camera;
-            this.photonPoseEstimator = new PhotonPoseEstimator(
-                    fieldLayout,
-                    cam.strategy,
-                    new Transform3d(new Pose3d(), cam.pose));
-        }
 
         /**
          * Creates an AprilTagCamera instance for the Vision subsystem with a specific

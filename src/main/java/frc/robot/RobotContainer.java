@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -26,7 +27,6 @@ import frc.robot.subsystems.drivetrain.StatefulDrivetrain;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AutoManager;
 import frc.robot.util.Elastic;
-import frc.robot.util.NTInterface;
 
 public class RobotContainer extends StateMachine<RobotContainer.State> {
 
@@ -109,12 +109,8 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 			handlePreMatchProcesses();
 		}
 
-		if(NTInterface.isDashboardConnected("dashboard1")){
-			NTInterface.NTITable table = NTInterface.getDashboardTable("dashboard1");
-			if(table.valueExists("Time")){
-				double time = table.getValue("Time").getDouble();
-				System.out.println(time);
-			}
+		if(RobotBase.isSimulation()) {
+			vision.updateSimPose(drivetrain.getPose());
 		}
 	}
 
