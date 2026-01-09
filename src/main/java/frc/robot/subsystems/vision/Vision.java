@@ -75,7 +75,7 @@ public class Vision {
                 .forEach((settings) -> {
                     SimCameraProperties camProps = new SimCameraProperties();
                     camProps.setCalibration(1280, 800, edu.wpi.first.math.geometry.Rotation2d.fromDegrees(75));
-                    camProps.setFPS(50);
+                    camProps.setFPS(120);
                     camProps.setAvgLatencyMs(20);
                     PhotonCamera realCam = Arrays.stream(pvCams)
                         .filter((cam) -> cam.cam.name.equals(settings.name))

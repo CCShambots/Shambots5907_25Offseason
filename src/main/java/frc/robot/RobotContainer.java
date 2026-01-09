@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -92,12 +91,20 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 	private void registerStateCommands() {
 		registerStateCommand(State.DISABLED, drivetrain.transitionCommand(StatefulDrivetrain.State.IDLE));
 		registerStateCommand(State.PRE_MATCH, new InstantCommand());
-		registerStateCommand(State.AUTONOMOUS, new InstantCommand(()->{
+		registerStateCommand(State.AUTONOMOUS, new InstantCommand(() -> {
 			AutoCommand auto = autoManager.getSelectedAuto();
 			CommandScheduler.getInstance().schedule(auto);
 		}));
 		registerStateCommand(State.TELEOP, drivetrain.transitionCommand(StatefulDrivetrain.State.TRAVERSING));
-		registerStateCommand(State.TEST, new InstantCommand());
+		registerStateCommand(State.TEST, new InstantCommand(()->{
+			drivetrain.requestTransition(StatefulDrivetrain.State.TRAVERSING);
+			SmartDashboard.putData("Run Auto", new InstantCommand(() -> {
+				drivetrain.requestTransition(StatefulDrivetrain.State.IDLE);
+				Command auto = autoManager.getSelectedAuto()
+				.andThen(drivetrain.transitionCommand(StatefulDrivetrain.State.TRAVERSING));
+				CommandScheduler.getInstance().schedule(auto);
+			}));
+		}));
 	}
 
 	@Override
@@ -105,12 +112,8 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 		vision.updateListeners();
 		displayDashboardObjects();
 		preMatchField.setRobotPose(drivetrain.getPose());
-		if(getState()==State.PRE_MATCH) {
+		if (getState() == State.PRE_MATCH) {
 			handlePreMatchProcesses();
-		}
-
-		if(RobotBase.isSimulation()) {
-			vision.updateSimPose(drivetrain.getPose());
 		}
 	}
 
@@ -187,6 +190,10 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 		Double deltaTime = realTime % totalTime;
 		Trajectory.State sample = traj.sample(deltaTime);
 		return sample.poseMeters;
+	}
+
+	public void simulationPeriodic() {
+		vision.updateSimPose(drivetrain.getPose());
 	}
 
 	public enum State {
