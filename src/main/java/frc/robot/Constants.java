@@ -35,28 +35,28 @@ public class Constants {
         }
 
         public static final Pose3d FRONT_LEFT_CAM_POSE = new Pose3d(
-                Units.inchesToMeters(11.0), // 11.0
-                Units.inchesToMeters(11.0), // 11.0
-                Units.inchesToMeters(8.5), // 8.5
-                new Rotation3d(0, Math.toRadians(0), Math.toRadians(20)));
+                Units.inchesToMeters(0), // 11.0
+                Units.inchesToMeters(0), // 11.0
+                Units.inchesToMeters(0), // 8.5
+                new Rotation3d(0, Math.toRadians(0), Math.toRadians(0)));
 
         public static final Pose3d FRONT_RIGHT_CAM_POSE = new Pose3d(
-                Units.inchesToMeters(11.0), // 11.0
-                Units.inchesToMeters(-11.0), // -11.0
-                Units.inchesToMeters(8.5), // 8.5
-                new Rotation3d(0, Math.toRadians(0), Math.toRadians(-70)));
+                Units.inchesToMeters(0), // 11.0
+                Units.inchesToMeters(0), // -11.0
+                Units.inchesToMeters(0), // 8.5
+                new Rotation3d(0, Math.toRadians(0), Math.toRadians(0)));
 
         public static final Pose3d BACK_LEFT_CAM_POSE = new Pose3d(
-                Units.inchesToMeters(-11.0),
-                Units.inchesToMeters(11.0),
-                Units.inchesToMeters(8.5),
-                new Rotation3d(0, Math.toRadians(0), Math.toRadians(180 + 40)));
+                Units.inchesToMeters(0),
+                Units.inchesToMeters(0),
+                Units.inchesToMeters(0),
+                new Rotation3d(0, Math.toRadians(0), Math.toRadians(0)));
 
         public static final Pose3d BACK_RIGHT_CAM_POSE = new Pose3d(
-                Units.inchesToMeters(-11.0),
-                Units.inchesToMeters(-11.0),
-                Units.inchesToMeters(8.5),
-                new Rotation3d(0, Math.toRadians(0), Math.toRadians(180 - 30)));
+                Units.inchesToMeters(0),
+                Units.inchesToMeters(0),
+                Units.inchesToMeters(0),
+                new Rotation3d(0, Math.toRadians(0), Math.toRadians(0)));
 
         public static final double FRONT_LEFT_CAM_TRUST_CUTOFF = Units.feetToMeters(14);
         public static final double FRONT_RIGHT_CAM_TRUST_CUTOFF = Units.feetToMeters(14);
