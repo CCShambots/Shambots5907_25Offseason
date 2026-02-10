@@ -425,6 +425,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @return The current pose of the robot.
      */
     public Pose2d getPose() {
-        return poseEstimator.getEstimatedPosition();
+        return getState().Pose;
     }
 }
