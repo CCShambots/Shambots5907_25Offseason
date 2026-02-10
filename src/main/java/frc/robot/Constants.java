@@ -28,35 +28,40 @@ public class Constants {
         static {
             try {
                 FIELD_LAYOUT = AprilTagFieldLayout
-                        .loadFromResource(AprilTagFields.k2025ReefscapeAndyMark.m_resourceFile);
+                        .loadFromResource(AprilTagFields.k2026RebuiltAndymark.m_resourceFile);
             } catch (Exception e) {
                 throw new RuntimeException("Could not load AprilTag field layout");
             }
         }
 
-        public static final Pose3d FRONT_LEFT_CAM_POSE = new Pose3d(
-                Units.inchesToMeters(0), // 11.0
-                Units.inchesToMeters(0), // 11.0
-                Units.inchesToMeters(0), // 8.5
-                new Rotation3d(0, Math.toRadians(0), Math.toRadians(0)));
+                public static final Pose3d FRONT_LEFT_CAM_POSE =
+            new Pose3d(
+                Units.inchesToMeters(11.0),   //11.0
+                Units.inchesToMeters(11.0),   //11.0
+                Units.inchesToMeters(8.5),     //8.5
+                new Rotation3d(0, Math.toRadians(0), Math.toRadians(20)));
 
-        public static final Pose3d FRONT_RIGHT_CAM_POSE = new Pose3d(
-                Units.inchesToMeters(0), // 11.0
-                Units.inchesToMeters(0), // -11.0
-                Units.inchesToMeters(0), // 8.5
-                new Rotation3d(0, Math.toRadians(0), Math.toRadians(0)));
+        public static final Pose3d FRONT_RIGHT_CAM_POSE =
+            new Pose3d(
+                Units.inchesToMeters(11.0),   //11.0
+                Units.inchesToMeters(-11.0),         //-11.0
+                Units.inchesToMeters(8.5),    //8.5
+                new Rotation3d(0, Math.toRadians(0), Math.toRadians(-40)));
 
-        public static final Pose3d BACK_LEFT_CAM_POSE = new Pose3d(
-                Units.inchesToMeters(0),
-                Units.inchesToMeters(0),
-                Units.inchesToMeters(0),
-                new Rotation3d(0, Math.toRadians(0), Math.toRadians(0)));
+        public static final Pose3d BACK_LEFT_CAM_POSE =
+            new Pose3d(
+                Units.inchesToMeters(-11.0),
+                Units.inchesToMeters(11.0),
+                Units.inchesToMeters(8.5),
+                new Rotation3d(0, Math.toRadians(0), Math.toRadians(180+40)));
+                
 
-        public static final Pose3d BACK_RIGHT_CAM_POSE = new Pose3d(
-                Units.inchesToMeters(0),
-                Units.inchesToMeters(0),
-                Units.inchesToMeters(0),
-                new Rotation3d(0, Math.toRadians(0), Math.toRadians(0)));
+        public static final Pose3d BACK_RIGHT_CAM_POSE =
+            new Pose3d(
+                Units.inchesToMeters(-11.0),
+                Units.inchesToMeters(-11.0),
+                Units.inchesToMeters(8.5),
+                new Rotation3d(0, Math.toRadians(0), Math.toRadians(180-30)));
 
         public static final double FRONT_LEFT_CAM_TRUST_CUTOFF = Units.feetToMeters(14);
         public static final double FRONT_RIGHT_CAM_TRUST_CUTOFF = Units.feetToMeters(14);

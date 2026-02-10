@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.SMF.StateMachine;
 import frc.robot.util.AllianceManager;
 import frc.robot.util.AutoCommand;
@@ -35,6 +38,7 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 	private final AutoManager autoManager;
 
 	private Joystick joystick = new Joystick(0);
+	private Joystick joystick2 = new Joystick(1);
 
 	private final Field2d preMatchField = new Field2d();
 
@@ -53,9 +57,9 @@ public class RobotContainer extends StateMachine<RobotContainer.State> {
 				tunerDrivetrain,
 				TunerConstants.kSpeedAt12Volts.abs(MetersPerSecond),
 				Constants.Drivetrain.MAX_ANGULAR_RATE,
-				() -> joystick.getRawAxis(0), // Strafe
-				() -> joystick.getRawAxis(1), // Forward
-				() -> joystick.getRawAxis(2) // Rotation
+				() -> joystick.getRawAxis(1)*0.5, // Strafe
+				() -> joystick.getRawAxis(0)*0.5, // Forward
+				() -> joystick2.getRawAxis(0)*-0.5 // Rotation
 		);
 
 		SmartDashboard.putData("Pre-Match Field", preMatchField);
