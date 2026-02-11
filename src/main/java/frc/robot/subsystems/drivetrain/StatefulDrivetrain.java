@@ -99,8 +99,8 @@ public class StatefulDrivetrain extends StateMachine<StatefulDrivetrain.State> {
 
     @Override
     public void update() {
-        drivetrain.periodic();
         field.setRobotPose(drivetrain.getPose());
+        drivetrain.periodic();
         SmartDashboard.putData("Match Field", field);
     }
 
