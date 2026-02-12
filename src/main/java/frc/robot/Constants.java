@@ -17,8 +17,8 @@ import frc.robot.subsystems.vision.Vision.PVCamera;
 
 public class Constants {
     public static class Field {
-        public static final double fieldWidthMeters = 805.0 / 100.0; // 805 cm wide field
-        public static final double fieldLengthMeters = 1755.0 / 100.0; // 1755 cm long field
+        public static final double fieldWidthMeters = 806.93 / 100.0; // 806.93 cm wide field
+        public static final double fieldLengthMeters = 1654.10 / 100.0; // 1654.10 cm long field
     }
 
     public static class Vision {
